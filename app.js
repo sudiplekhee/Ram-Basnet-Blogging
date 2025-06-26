@@ -14,6 +14,20 @@ app.get("/navbar",(req,res)=>{
 app.get("/register", (req, res) => {
   res.render("authentication/register")
 })
+app.get("/about", (req, res) => {
+  res.render("about")
+})
+app.get("/contact", (req, res) => {
+  res.render("contact")
+})
+
+app.post("/contact", (req, res) => {
+  const { name, email, message } = req.body;
+  // Process or save the contact message
+  // For now, just send back a success message
+  res.send("Thank you for contacting us!");
+});
+
 app.post("/register",(req,res)=>{
   // console.log(req.body)
   const{name,email,password}=req.body
@@ -51,6 +65,23 @@ app.post("/login",async(req,res)=>{
 app.get("/addblog",(req,res)=>{
   res.render("pages/addblog")
 })
+app.post("/addblog",(req,res)=>{
+  console.log(req.body)
+  const{title,subtitle,description}=req.body
+  db.blogs.create({
+    title,
+    subtitle,
+    description
+  })
+  res.send("Inserted succesfully")
+})
+app.get("/editblog",(req,res)=>{
+  res.render("pages/editblog")
+})
+app.get("/getblog",(req,res)=>{
+  res.render("pages/getblog")
+})
+
 
 app.listen(5555,()=>{
     console.log("The port is connected to server")
