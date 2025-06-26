@@ -13,6 +13,8 @@ const db={}
 db.users=require("../models/user")(sequelize,DataTypes)
 db.blogs=require("../models/blog")(sequelize,DataTypes)
 
+db.users.hasMany(db.blogs)
+db.blogs.belongsTo(db.users)
 
 sequelize.sync({alter:true})
 .then(()=>{

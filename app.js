@@ -2,7 +2,11 @@ const express=require("express")
 const app=express()
 const db=require("./config/db")
 const bcrypt=require("bcrypt")
+const jwt=require("jsonwebtoken")
+const islogged=require("./middleware/islogged")
 app.set("view engine","ejs")
+const cookieparser=require("cookie-parser")
+app.use(cookieparser())
 app.use(express.urlencoded({extended:true}))
 
 app.get("/",(req,res)=>{
@@ -37,8 +41,9 @@ app.post("/register",(req,res)=>{
     password:bcrypt.hashSync(password,10)
   })
   res.render("authentication/login")
+  
 })
-app.get("/login", (req, res) => {
+app.get("/login",(req,res) => {
   res.render("authentication/login")
 })
 app.post("/login",async(req,res)=>{
@@ -54,7 +59,12 @@ app.post("/login",async(req,res)=>{
   else{
   const ispasswordmatch= bcrypt.compareSync(password,users[0].password)
   if(ispasswordmatch){
-    res.send("Logged in succesfully")
+    const token=jwt.sign({id:users[0].id},"haha",{
+      expiresIn:"10d"
+    })
+    res.cookie("token",token)
+    res.send(token)
+    // res.send("Logged in succesfully")
   }
   else{
     res.send("Invalid credentials")
@@ -62,10 +72,10 @@ app.post("/login",async(req,res)=>{
   }
 
 })
-app.get("/addblog",(req,res)=>{
+app.get("/addblog",islogged,(req,res)=>{
   res.render("pages/addblog")
 })
-app.post("/addblog",(req,res)=>{
+app.post("/addblog",islogged,(req,res)=>{
   console.log(req.body)
   const{title,subtitle,description}=req.body
   db.blogs.create({
@@ -73,13 +83,25 @@ app.post("/addblog",(req,res)=>{
     subtitle,
     description
   })
-  res.send("Inserted succesfully")
+  res.redirect("/getblog")
 })
 app.get("/editblog",(req,res)=>{
   res.render("pages/editblog")
 })
-app.get("/getblog",(req,res)=>{
-  res.render("pages/getblog")
+app.get("/getblog",async(req,res)=>{
+  const userId=request.userId
+const blogs=await db.blogs.findAll()
+console.log(blogs)
+    res.render("pages/getblog",{blogs})
+})
+app.get("/addblog",islogged,async(req,res)=>{
+  const userId=req.userId
+  const datas=await db.blogs.findAll({
+    where:{
+      userId:userId
+    }
+  })
+  res.render("pages/getblog",{blogs:datas})
 })
 
 
