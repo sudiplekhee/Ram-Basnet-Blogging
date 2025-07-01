@@ -85,7 +85,8 @@ app.post("/login", async (req, res) => {
         expiresIn: "10d"
       })
       res.cookie("token", token)
-      res.send(token)
+      res.redirect("/addblog")
+
     } else {
       res.send("Invalid credentials")
     }
@@ -97,12 +98,14 @@ app.get("/addblog", islogged, (req, res) => {
 })
 
 app.post("/addblog", islogged, (req, res) => {
+  const userId = req.userId
   console.log(req.body)
   const { title, subtitle, description } = req.body
   db.blogs.create({
     title,
     subtitle,
-    description
+    description,
+    userId
   })
   res.redirect("/getblog")
 })
@@ -112,7 +115,7 @@ app.get("/editblog", (req, res) => {
 })
 
 app.get("/getblog", async (req, res) => {
-  const userId = request.userId
+  const userId = req.userId
   const blogs = await db.blogs.findAll()
   console.log(blogs)
   res.render("pages/getblog", { blogs })
@@ -127,6 +130,52 @@ app.get("/addblog", islogged, async (req, res) => {
   })
   res.render("pages/getblog", { blogs: datas })
 })
+app.post("/delete/:id", islogged, async (req, res) => {
+  const id = req.params.id
+  await db.blogs.destroy({
+    where: {
+      id: id
+    }
+  })
+  res.redirect("/getblog")
+})
+//edit page
+app.get("/edit/:id", islogged, async (req, res) => {
+  const id = req.params.id;
+  const blog = await db.blogs.findOne({ where: { id } });
+  if (!blog) {
+    return res.status(404).send("Blog not found");
+  }
+  res.render("pages/edit", { blog });
+});
+
+//edit page receive 
+app.post("/edit/:id", islogged, async (req, res) => {
+  const id = req.params.id;
+  const { title, subtitle, description } = req.body;
+
+  try {
+    // Check if blog exists
+    const blog = await db.blogs.findOne({ where: { id } });
+    if (!blog) {
+      return res.status(404).send("Blog not found");
+    }
+
+    // Update blog with new values
+    await db.blogs.update(
+      { title, subtitle, description },
+      { where: { id } }
+    );
+
+    // Redirect to blog list or wherever appropriate
+    res.redirect("/getblog");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
 
 app.get("/upload", (req, res) => {
   res.render("upload")

@@ -1,31 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>3 Card Blog Layout</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100">
 
   <!-- Navbar -->
   <%- include("../partials/navbar") %>
 
-  <!-- Main Content -->
-  <div class="max-w-6xl mx-auto px-4 py-12">
-    <h1 class="text-3xl font-bold text-center text-purple-700 mb-10">Latest Blog Posts</h1>
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4 py-12">
+      <h1 class="text-3xl font-bold text-center text-purple-700 mb-10">Latest Blog Posts</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% blogs.forEach(function(blog){ %>
-      <!-- Card 3 -->
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-xl font-bold text-[#993BFB] mb-1"><%= blog.title %></h2>
-        <h3 class="text-md font-semibold text-gray-700 mb-2"><%= blog.subtitle %></h3>
-        <p class="text-gray-600"><%= blog.description %></p>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% blogs.forEach(function(blog){ %>
+          <!-- Card 3 -->
+          <div class="bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-xl font-bold text-[#993BFB] mb-1">
+              <%= blog.title %>
+            </h2>
+            <h3 class="text-md font-semibold text-gray-700 mb-2">
+              <%= blog.subtitle %>
+            </h3>
+            <p class="text-gray-600">
+              <%= blog.description %>
+            </p>
+            <div class="flex gap-4 mt-4">
+              <form action="/delete/<%- blog.id %>" method="POST" class="inline">
+                <button
+                  class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200">
+                  Delete me
+                </button>
+              </form>
+              <form action="/edit/<%- blog.id %>" method="POST" class="inline">
+                <button
+                  class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200">
+                  Edit me
+                </button>
+              </form>
+
+
+              
+            </div>
+
+
+
+          </div>
+          <% }) %>
+
       </div>
-  <% }) %>
     </div>
-  </div>
+
 
 </body>
+
 </html>
