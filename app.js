@@ -139,41 +139,46 @@ app.post("/delete/:id", islogged, async (req, res) => {
   })
   res.redirect("/getblog")
 })
-//edit page
+/// GET /edit/:id — show the edit form
 app.get("/edit/:id", islogged, async (req, res) => {
   const id = req.params.id;
-  const blog = await db.blogs.findOne({ where: { id } });
-  if (!blog) {
-    return res.status(404).send("Blog not found");
+  try {
+    const blog = await db.blogs.findOne({ where: { id } });
+    if (!blog) {
+      return res.status(404).send("Blog not found");
+    }
+    // ✅ Correct path to your EJS file
+    res.render("pages/editblog", { blog });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
   }
-  res.render("pages/edit", { blog });
 });
 
-//edit page receive 
+
+
+// POST /edit/:id — update the blog
 app.post("/edit/:id", islogged, async (req, res) => {
   const id = req.params.id;
   const { title, subtitle, description } = req.body;
 
   try {
-    // Check if blog exists
     const blog = await db.blogs.findOne({ where: { id } });
-    if (!blog) {
-      return res.status(404).send("Blog not found");
-    }
+    if (!blog) return res.status(404).send("Blog not found");
 
-    // Update blog with new values
     await db.blogs.update(
       { title, subtitle, description },
-      { where: { id } }
+      { where: { id: id } }
     );
 
-    // Redirect to blog list or wherever appropriate
     res.redirect("/getblog");
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 });
+
+
 
 
 
